@@ -1,13 +1,15 @@
-import { Controller, Get, Post, Body, Query, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Put, UseGuards } from '@nestjs/common';
 import { UserService } from 'src/services/user/user.service';
 import { userViewModel } from 'src/domain/user.viewmodel';
+import { AuthGuard } from "@nestjs/passport"
 @Controller('user')
 export class UserController {
 
-    constructor(private userService: UserService){
+    constructor(private userService: UserService) {
 
     }
 
+    @UseGuards(AuthGuard("jwt"))
     @Get()
     getUsers() {
         return this.userService.getUsers()
@@ -18,14 +20,19 @@ export class UserController {
         return this.userService.createNewUser(newUser)
     }
 
+    @Post("many")
+    createUsers(@Body() newUsers: userViewModel[]) {
+        return this.userService.createNewUsers(newUsers)
+    }
+
     @Put()
-    editUser(@Body() user: userViewModel){
-        return this.userService.editUser(user)
+    editUser(@Body() user: userViewModel) {
+        return this.userService.updateUser(user)
     }
 
     @Delete()
-    deleteUser(@Body() newUser: userViewModel){
-
+    deleteUser(@Body() user: userViewModel) {
+        return this.userService.deleteUser(user)
     }
-
+    
 }

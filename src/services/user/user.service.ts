@@ -5,38 +5,42 @@ import { loginViewModel } from 'src/domain/login.viewmodel';
 
 @Injectable()
 export class UserService {
-    constructor(readonly userRepository: UserRepository){}
+    constructor(readonly userRepository: UserRepository) { }
 
     getUsers() {
         return this.userRepository.getUsers()
     }
 
-    createNewUser(newUser: userViewModel){
+    createNewUser(newUser: userViewModel) {
         const userList = this.userRepository.getUsers()
-        
         const existUser = userList.find(x => x.userName === newUser.userName)
-
-        if(existUser) throw new BadRequestException("This user name already exist");
-        
+        if (existUser) throw new BadRequestException("This user name already exist");
         return this.userRepository.createUser(newUser)
     }
 
-    attemptlogin(login: loginViewModel){
+    createNewUsers(newUsers: userViewModel[]) {
+        newUsers.forEach(user => this.userRepository.createUser(user))
+        return "Users succesfuly added"
+    }
+
+    attemptlogin(login: loginViewModel) {
         const userList = this.userRepository.getUsers()
-
         const foundLogin = userList.find(x => x.userLogin === login.userLogin && x.password === login.password)
-
         return foundLogin
     }
 
-    editUser(user: userViewModel){
+    updateUser(user: userViewModel) {
         const userList = this.userRepository.getUsers()
-        
         const existUser = userList.find(x => x.userName === user.userName)
+        if (!existUser) throw new BadRequestException("User not registered");
+        return this.userRepository.updateUser(user)
+    }
 
-        if(!existUser) throw new BadRequestException("User not registered");
-
-        return this.userRepository.editUser(user)
+    deleteUser(user: userViewModel) {
+        const userList = this.userRepository.getUsers()
+        const userIndex = userList.findIndex(x => x.userLogin === user.userLogin && x.password === user.password)
+        if (userIndex === -1) throw new BadRequestException("User not registered");
+        return this.userRepository.deleteUser(userIndex)
     }
 
 }

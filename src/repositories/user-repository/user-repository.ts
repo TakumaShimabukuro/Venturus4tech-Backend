@@ -1,31 +1,34 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { userViewModel } from 'src/domain/user.viewmodel';
 
 @Injectable()
 export class UserRepository {
-    db: userViewModel[] = [];
+    db: userViewModel[] = [
+        new userViewModel("takuma", "takuma", "123")
+    ];
 
     getUsers() {
         return this.db;
     }
 
-    createUser(newUser: userViewModel){
+    createUser(newUser: userViewModel) {
         this.db.push(newUser);
         return "User successfully added"
     }
 
-    editUser(user: userViewModel){
+    updateUser(user: userViewModel) {
         const list: userViewModel[] = this.db;
         const newList: userViewModel[] = list.map(x => {
-            if(x.userName == user.userName) x = user;
+            if (x.userLogin == user.userLogin) x = user;
             return x
         })
         this.db = newList
-        return "User successfully edited"
+        return "User successfully updated"
     }
 
-    deleteUser(userName: string){
-
+    deleteUser(userIndex: number) {
+        this.db.splice(userIndex, 1)
+        return "User successfully removed"
     }
 
 }
