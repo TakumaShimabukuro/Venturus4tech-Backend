@@ -11,36 +11,71 @@ export class UserService {
         return this.userRepository.getUsers()
     }
 
-    createNewUser(newUser: userViewModel) {
-        const userList = this.userRepository.getUsers()
-        const existUser = userList.find(x => x.userName === newUser.userName)
+    async createNewUser(newUser: userViewModel) {
+
+        /* Pega todos registros no banco */
+        const userList = await this.userRepository.getUsers()
+
+        /* Valida se existe no banco ou não */
+        const existUser = userList.find(x => x.userLogin === newUser.userLogin)
         if (existUser) throw new BadRequestException("This user name already exist");
+
+        /* Salva no banco */
         return this.userRepository.createUser(newUser)
     }
 
-    createNewUsers(newUsers: userViewModel[]) {
-        newUsers.forEach(user => this.userRepository.createUser(user))
-        return "Users succesfuly added"
+    async createNewUsers(newUsers: userViewModel[]) {
+
+        /* Pega todos registros no banco */
+        const userList = await this.userRepository.getUsers()
+
+        /* Valida se existe no banco ou não */
+        newUsers.forEach(user => {
+            const existUser = userList.find(x => x.userLogin === user.userLogin)
+            if (existUser) throw new BadRequestException("This user name already exist");
+        })
+
+        /* Salva no banco */
+        return this.userRepository.createUsers(newUsers)
     }
 
-    attemptlogin(login: loginViewModel) {
-        const userList = this.userRepository.getUsers()
-        const foundLogin = userList.find(x => x.userLogin === login.userLogin && x.password === login.password)
-        return foundLogin
-    }
+    async updateUser(user: userViewModel) {
 
-    updateUser(user: userViewModel) {
-        const userList = this.userRepository.getUsers()
-        const existUser = userList.find(x => x.userName === user.userName)
+        /* Pega todos registros no banco */
+        const userList = await this.userRepository.getUsers()
+
+        /* Valida se existe no banco ou não */
+        const existUser = userList.find(x => x.userLogin === user.userLogin)
         if (!existUser) throw new BadRequestException("User not registered");
+
+        /* Salva no banco */
         return this.userRepository.updateUser(user)
     }
 
-    deleteUser(user: userViewModel) {
-        const userList = this.userRepository.getUsers()
-        const userIndex = userList.findIndex(x => x.userLogin === user.userLogin && x.password === user.password)
-        if (userIndex === -1) throw new BadRequestException("User not registered");
-        return this.userRepository.deleteUser(userIndex)
+    async deleteUser(user: userViewModel) {
+
+        /* Pega todos registros no banco */
+        const userList = await this.userRepository.getUsers()
+
+        /* Valida se existe no banco ou não */
+        const foundUser = userList.find(x => x.userLogin === user.userLogin && x.password === user.password)
+        if (!foundUser) throw new BadRequestException("User not registered");
+
+        /* Deleta no banco */
+        return this.userRepository.deleteUser(foundUser)
+    }
+
+    async attemptlogin(login: loginViewModel) {
+
+        /* Pega todos registros no banco */
+        const userList = await this.userRepository.getUsers()
+
+        /* Verifica se existe no banco ou não */
+        const foundLogin = userList.find(x => x.userLogin === login.userLogin && x.password === login.password)
+        if (!foundLogin) throw new BadRequestException("Has no datas in DB");
+
+        /* Retorna o dado */
+        return foundLogin
     }
 
 }

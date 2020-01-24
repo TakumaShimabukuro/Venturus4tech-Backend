@@ -2,14 +2,13 @@ import { Controller, Get, Post, Body, Delete, Put, UseGuards } from '@nestjs/com
 import { UserService } from 'src/services/user/user.service';
 import { userViewModel } from 'src/domain/user.viewmodel';
 import { AuthGuard } from "@nestjs/passport"
+
+@UseGuards(AuthGuard("jwt"))
 @Controller('user')
 export class UserController {
 
-    constructor(private userService: UserService) {
+    constructor(private userService: UserService) { }
 
-    }
-
-    @UseGuards(AuthGuard("jwt"))
     @Get()
     getUsers() {
         return this.userService.getUsers()
@@ -34,5 +33,5 @@ export class UserController {
     deleteUser(@Body() user: userViewModel) {
         return this.userService.deleteUser(user)
     }
-    
+
 }

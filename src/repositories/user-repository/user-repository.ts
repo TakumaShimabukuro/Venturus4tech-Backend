@@ -1,34 +1,67 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { userViewModel } from 'src/domain/user.viewmodel';
+import { Injectable, BadRequestException } from '@nestjs/common'
+import { userViewModel } from 'src/domain/user.viewmodel'
+import { InjectModel } from '@nestjs/mongoose'
+import { Model } from "mongoose"
+import { User } from "src/domain/schemas/user.schema"
 
 @Injectable()
 export class UserRepository {
-    db: userViewModel[] = [
-        new userViewModel("takuma", "takuma", "123")
-    ];
+    constructor(@InjectModel("User") private readonly UserCollection: Model<User>) { }
 
-    getUsers() {
-        return this.db;
+    async getUsers(): Promise<User[]> {
+        try {
+            return await this.UserCollection
+                .find()
+                .lean()
+        } catch (e) {
+            console.log(e)
+            return []
+        }
     }
 
-    createUser(newUser: userViewModel) {
-        this.db.push(newUser);
-        return "User successfully added"
+    async createUser(newUser: userViewModel) {
+        try {
+            const user = this.UserCollection(newUser)
+            await user.save();
+            return "User successfully added"
+        } catch (e) {
+            console.log(e)
+            return new Error(e)
+        }
     }
 
-    updateUser(user: userViewModel) {
-        const list: userViewModel[] = this.db;
-        const newList: userViewModel[] = list.map(x => {
-            if (x.userLogin == user.userLogin) x = user;
-            return x
-        })
-        this.db = newList
-        return "User successfully updated"
+    async createUsers(newUsers: userViewModel[]) {
+        try {
+            newUsers.forEach(async newUser => {
+                const user = this.UserCollection(newUser)
+                await user.save();
+            })
+            return "Users successfully added"
+        } catch (e) {
+            console.log(e)
+            return new Error(e)
+        }
     }
 
-    deleteUser(userIndex: number) {
-        this.db.splice(userIndex, 1)
-        return "User successfully removed"
+
+    async updateUser(user: userViewModel) {
+        try {
+            await this.UserCollection.updateOne({ userLogin: user.userLogin }, user);
+            return "User successfully updated"
+        } catch (e) {
+            console.log(e)
+            return new Error(e)
+        }
+    }
+
+    async deleteUser(user: userViewModel) {
+        try {
+            await this.UserCollection.remove({userLogin: user.userLogin})
+            return "User successfully removed"
+        } catch (e) {
+            console.log(e)
+            return new Error(e)
+        }
     }
 
 }

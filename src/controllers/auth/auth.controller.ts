@@ -7,12 +7,12 @@ import { loginViewModel } from 'src/domain/login.viewmodel';
 export class AuthController {
 
     constructor(
-        private authService: AuthService, 
+        private authService: AuthService,
         // private readonly jwtService: JwtService
-        ){}
+    ) { }
 
     @Post("login")
-    login(@Body() login: loginViewModel){
+    login(@Body() login: loginViewModel) {
         return this.authService.login(login);
     }
 }
