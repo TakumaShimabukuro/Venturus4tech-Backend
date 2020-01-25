@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { userViewModel } from 'src/domain/user.viewmodel'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from "mongoose"
@@ -12,12 +12,36 @@ export class UserRepository {
         try {
             return await this.UserCollection
                 .find()
+                .select({ __v: false, password: false })
                 .lean()
         } catch (e) {
             console.log(e)
-            return []
+            return [e]
         }
     }
+
+    async getUserById(id: string): Promise<User> {
+        try {
+            return await this.UserCollection
+                .findOne({ _id: id })
+        } catch (e) {
+            console.log(e)
+            return e
+        }
+    }
+
+    async getByCredential(userLoginFromViewModel: string, passwordFromViewModel: string){
+        try {
+            return this.UserCollection
+                .findOne({
+                    userLogin: userLoginFromViewModel, 
+                    password: passwordFromViewModel
+                })
+            
+        } catch (e) {
+            
+        }
+    } 
 
     async createUser(newUser: userViewModel) {
         try {
@@ -56,7 +80,7 @@ export class UserRepository {
 
     async deleteUser(user: userViewModel) {
         try {
-            await this.UserCollection.remove({userLogin: user.userLogin})
+            await this.UserCollection.remove({ userLogin: user.userLogin })
             return "User successfully removed"
         } catch (e) {
             console.log(e)

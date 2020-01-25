@@ -13,6 +13,8 @@ import { UserSchema } from './domain/schemas/user.schema';
 import { UserActivityController } from './controllers/user-activity/user-activity.controller';
 import { UserActivitySchema } from './domain/schemas/user-activity.schema';
 import { UserActivityService } from './services/user-activity/user-activity.service';
+import { UserActivityRepository } from './repositories/user-activity-repository/user-activity-repository';
+import { WebsocketGateway } from './websocket/websocket.gateway';
 
 @Module({
     /* Configs */
@@ -37,6 +39,6 @@ import { UserActivityService } from './services/user-activity/user-activity.serv
     /* Controllers */
     controllers: [AppController, UserController, AuthController, UserActivityController],
     /* Services / Repositories */
-    providers: [AppService, UserService, UserRepository, AuthService, JwtStrategy, UserActivityService],
+    providers: [AppService, UserService, UserRepository, AuthService, JwtStrategy, UserActivityService, UserActivityRepository, WebsocketGateway],
 })
 export class AppModule { }

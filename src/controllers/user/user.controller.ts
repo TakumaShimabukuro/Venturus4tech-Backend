@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Delete, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Put, UseGuards, Param } from '@nestjs/common';
 import { UserService } from 'src/services/user/user.service';
 import { userViewModel } from 'src/domain/user.viewmodel';
 import { AuthGuard } from "@nestjs/passport"
@@ -12,6 +12,11 @@ export class UserController {
     @Get()
     getUsers() {
         return this.userService.getUsers()
+    }
+
+    @Get(":id")
+    getUser(@Param("id") id: string) {
+        return this.userService.getUserById(id)
     }
 
     @Post()
